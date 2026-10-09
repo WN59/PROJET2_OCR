@@ -1,59 +1,74 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { Olympic } from '../../models/olympic.interface';
-import { Participation } from '../../models/participation.interface';
 import { Stat } from '../../models/stat.interface';
+import { ChartComponent } from '../../shared/components/chart/chart.component';
+import { HeaderComponent } from '../../shared/components/header/header.component';
 
 @Component({
   selector: 'app-dashboard',
+  imports: [HeaderComponent, ChartComponent],
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss'],
+  styleUrl: './dashboard.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DashboardComponent implements OnInit {
-  private olympicUrl = './assets/mock/olympic.json';
+export class DashboardComponent {
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
+  private readonly olympicUrl = './assets/mock/olympic.json';
+
   readonly titlePage = 'Medals per Country';
-  error!: string;
-  olympics!: Olympic[];
-  stats!: Stat[];
-  chartLabels: string[] = [];
-  chartData: number[] = [];
+  readonly error = signal('');
+  readonly stats = signal<Stat[]>([]);
+  readonly chartLabels = signal<string[]>([]);
+  readonly chartData = signal<number[]>([]);
 
-  constructor(private router: Router, private http: HttpClient) {}
+  constructor() {
+    this.http
+      .get<Olympic[]>(this.olympicUrl)
+      .pipe(takeUntilDestroyed())
+      .subscribe({
+        next: (olympics) => {
+          if (!olympics.length) {
+            return;
+          }
 
-  ngOnInit() {
-    this.http.get<Olympic[]>(this.olympicUrl).subscribe({
-      next: (data: Olympic[]) => {
-        this.olympics = data;
-        if (this.olympics && this.olympics.length > 0) {
-          this.chartLabels = this.olympics.map((olympic: Olympic) => olympic.country);
-          this.chartData = this.olympics.map((olympic: Olympic) =>
+          console.log(olympics);
+
+          const chartLabels = olympics.map((olympic) => olympic.country);
+          console.log(chartLabels);
+          const chartData = olympics.map((olympic) =>
             olympic.participations.reduce(
-              (acc: number, participation: Participation) => acc + participation.medalsCount,
+              (total, participation) => total + participation.medalsCount,
               0
             )
           );
-          const josCount = Array.from(
-            new Set(
-              this.olympics.flatMap((olympic: Olympic) =>
-                olympic.participations.map((participation: Participation) => participation.year)
-              )
+          console.log(chartData);
+          const josCount = new Set(
+            olympics.flatMap((olympic) =>
+              olympic.participations.map((participation) => participation.year)
             )
-          ).length;
+          ).size;
 
-          this.stats = [
-            { label: 'Number of countries', value: this.chartLabels.length },
+          this.chartLabels.set(chartLabels);
+          this.chartData.set(chartData);
+          this.stats.set([
+            { label: 'Number of countries', value: chartLabels.length },
             { label: 'Number of JOs', value: josCount },
-          ];
-        }
-      },
-      error: (error: HttpErrorResponse) => {
-        this.error = error.message;
-      },
-    });
+          ]);
+        },
+        error: (error: HttpErrorResponse) => this.error.set(error.message),
+      });
   }
 
-  onCountryClick(countryName: string | number) {
+  onCountryClick(countryName: string | number): void {
     this.router.navigate(['country', countryName]);
   }
 }

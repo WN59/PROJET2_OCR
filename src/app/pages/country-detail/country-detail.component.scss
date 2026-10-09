@@ -1,19 +1,20 @@
+.chart-wrapper {
+  display: flex;
+  justify-content: center;
 
-.wrapper-container {
-    display: flex;
-    justify-content: center;
+  app-chart {
+    width: min(50%, 100%);
+  }
 }
 
-.container {
-    width: 50%;
-    h2{
-        text-align: center;
-        color: gray;
-    }
+.back-link {
+  display: flex;
+  justify-content: center;
+  margin: 16px 0;
 }
 
 @media screen and (max-width: 1000px) {
-    .container {
-        width: 100%;
-    }
+  .chart-wrapper app-chart {
+    width: 100%;
+  }
 }

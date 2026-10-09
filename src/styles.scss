@@ -1,28 +1,10 @@
-/* You can add global styles to this file, and also import other style files */
-.heading {
-    flex-direction: column;
-}
-
 .error {
-    margin: 16px auto;
-    padding: 12px 16px;
-    max-width: 480px;
-    text-align: center;
-    color: #8b1e1e;
-    background: #fdecec;
-    border: 1px solid #e0a0a0;
-    border-radius: 10px;
-}
-
-.center {
-    display: flex;
-    justify-content: center;
-    margin: 5px;
-
-    div {
-        background: #0b868f;
-        padding: 10px;
-        border-radius: 10px;
-        color: white;
-    }
+  margin: 16px auto;
+  padding: 12px 16px;
+  max-width: 480px;
+  text-align: center;
+  color: #8b1e1e;
+  background: #fdecec;
+  border: 1px solid #e0a0a0;
+  border-radius: 10px;
 }

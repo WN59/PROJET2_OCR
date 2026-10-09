@@ -12,6 +12,8 @@
 
 - Mise à jour d'Angular et de l'intégralité des dépendances.
 
+- Utilisation des nouveautés d'Angular (signal,effect,computed etc.).
+
 ## Fichiers
 
 ### `app-routing.module.ts`

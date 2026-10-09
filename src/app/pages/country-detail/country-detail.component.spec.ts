@@ -1,7 +1,7 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, Router } from '@angular/router';
-import { HeaderComponent } from '../../shared/components/header/header.component';
+import { ActivatedRoute, provideRouter } from '@angular/router';
 import { CountryDetailComponent } from './country-detail.component';
 
 describe('CountryDetailComponent', () => {
@@ -10,12 +10,15 @@ describe('CountryDetailComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [CountryDetailComponent],
-      imports: [HeaderComponent],
+      imports: [CountryDetailComponent],
       providers: [
-        provideHttpClient(),
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 'Italy' } } } },
-        { provide: Router, useValue: { navigate: () => undefined } },
+        provideHttpClient(withXhr()),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { paramMap: { get: () => 'Italy' } } },
+        },
       ],
     }).compileComponents();
 

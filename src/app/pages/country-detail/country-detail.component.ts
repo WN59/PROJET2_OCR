@@ -1,66 +1,70 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Olympic } from '../../models/olympic.interface';
-import { Participation } from '../../models/participation.interface';
 import { Stat } from '../../models/stat.interface';
+import { ChartComponent } from '../../shared/components/chart/chart.component';
+import { HeaderComponent } from '../../shared/components/header/header.component';
 
 @Component({
   selector: 'app-country-detail',
+  imports: [HeaderComponent, ChartComponent, RouterLink],
   templateUrl: './country-detail.component.html',
-  styleUrls: ['./country-detail.component.scss'],
+  styleUrl: './country-detail.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CountryDetailComponent implements OnInit {
-  private olympicUrl = './assets/mock/olympic.json';
-  error!: string;
-  titlePage!: string;
-  olympics!: Olympic[];
-  stats!: Stat[];
-  chartLabels: number[] = [];
-  chartData: number[] = [];
+export class CountryDetailComponent {
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
+  private readonly countryName = inject(ActivatedRoute).snapshot.paramMap.get('countryName');
+  private readonly olympicUrl = './assets/mock/olympic.json';
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private http: HttpClient
-  ) {}
+  readonly error = signal('');
+  readonly titlePage = signal('');
+  readonly stats = signal<Stat[]>([]);
+  readonly chartLabels = signal<number[]>([]);
+  readonly chartData = signal<number[]>([]);
 
-  ngOnInit() {
-    const countryName = this.route.snapshot.paramMap.get('countryName');
+  constructor() {
+    this.http
+      .get<Olympic[]>(this.olympicUrl)
+      .pipe(takeUntilDestroyed())
+      .subscribe({
+        next: (olympics) => {
+          const selectedCountry = olympics.find(
+            (olympic) => olympic.country === this.countryName
+          );
 
-    this.http.get<Olympic[]>(this.olympicUrl).subscribe({
-      next: (data: Olympic[]) => {
-        this.olympics = data;
-        const selectedCountry = this.olympics.find(
-          (olympic: Olympic) => olympic.country === countryName
-        );
+          if (!selectedCountry) {
+            this.router.navigateByUrl('/not-found');
+            return;
+          }
 
-        if (!selectedCountry) {
-          this.router.navigateByUrl('/not-found');
-          return;
-        }
+          const { country, participations } = selectedCountry;
+          const chartLabels = participations.map((participation) => participation.year);
+          const chartData = participations.map((participation) => participation.medalsCount);
+          const totalMedals = chartData.reduce((total, medals) => total + medals, 0);
+          const totalAthletes = participations.reduce(
+            (total, participation) => total + participation.athleteCount,
+            0
+          );
 
-        this.titlePage = selectedCountry.country;
-        const participations = selectedCountry.participations;
-        this.chartLabels = participations.map((participation: Participation) => participation.year);
-        this.chartData = participations.map(
-          (participation: Participation) => participation.medalsCount
-        );
-        const totalMedals = this.chartData.reduce((acc, medalsCount) => acc + medalsCount, 0);
-        const totalAthletes = participations.reduce(
-          (acc, participation: Participation) => acc + participation.athleteCount,
-          0
-        );
-
-        this.stats = [
-          { label: 'Number of entries', value: participations.length },
-          { label: 'Total number of medals', value: totalMedals },
-          { label: 'Total number of athletes', value: totalAthletes },
-        ];
-      },
-      error: (error: HttpErrorResponse) => {
-        this.error = error.message;
-      },
-    });
+          this.titlePage.set(country);
+          this.chartLabels.set(chartLabels);
+          this.chartData.set(chartData);
+          this.stats.set([
+            { label: 'Number of entries', value: participations.length },
+            { label: 'Total number of medals', value: totalMedals },
+            { label: 'Total number of athletes', value: totalAthletes },
+          ]);
+        },
+        error: (error: HttpErrorResponse) => this.error.set(error.message),
+      });
   }
 }

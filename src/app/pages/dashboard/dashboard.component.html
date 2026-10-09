@@ -1,14 +1,14 @@
-<app-header [title]="titlePage" [stats]="stats"></app-header>
+<app-header [title]="titlePage" [stats]="stats()"></app-header>
 <section>
-  @if (error) {
-    <p class="error" role="alert">{{ error }}</p>
-  } @else if (chartLabels.length > 0) {
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  } @else if (chartLabels().length > 0) {
     <app-chart
       type="pie"
-      [labels]="chartLabels"
-      [data]="chartData"
+      [labels]="chartLabels()"
+      [data]="chartData()"
       datasetLabel="Medals"
       (chartClick)="onCountryClick($event)"
-    ></app-chart>
+    />
   }
 </section>

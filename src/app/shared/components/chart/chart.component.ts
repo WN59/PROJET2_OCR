@@ -20,7 +20,6 @@ export class ChartComponent implements OnDestroy {
   private readonly canvas = viewChild<ElementRef<HTMLCanvasElement>>('canvas');
   private chartInstance: Chart | null = null;
 
-  /** Type de graphique Chart.js (ex. pie, line). */
   readonly type = input.required<ChartType>();
   readonly labels = input.required<(string | number)[]>();
   readonly data = input.required<number[]>();
@@ -34,67 +33,58 @@ export class ChartComponent implements OnDestroy {
     '#94819d',
   ]);
   readonly aspectRatio = input(2.5);
-  /** Libellé optionnel sous le graphique (ex. "Date"). */
   readonly caption = input<string>();
-
-  /** Émet le label cliqué (utile pour le pie du dashboard). */
   readonly chartClick = output<string | number>();
 
   constructor() {
     effect(() => {
-      const canvasRef = this.canvas();
-      const type = this.type();
+      const canvas = this.canvas()?.nativeElement;
       const labels = this.labels();
       const data = this.data();
-      const datasetLabel = this.datasetLabel();
-      const colors = this.colors();
-      const aspectRatio = this.aspectRatio();
 
-      if (!canvasRef || labels.length === 0 || data.length === 0) {
+      // Dépendances lues pour recalculer le graphique si elles changent
+      this.type();
+      this.datasetLabel();
+      this.colors();
+      this.aspectRatio();
+
+      if (!canvas || !labels.length || !data.length) {
         return;
       }
 
-      this.renderChart(canvasRef.nativeElement, type, labels, data, datasetLabel, colors, aspectRatio);
+      this.createChart(canvas);
     });
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.chartInstance?.destroy();
     this.chartInstance = null;
   }
 
-  private renderChart(
-    canvas: HTMLCanvasElement,
-    type: ChartType,
-    labels: (string | number)[],
-    data: number[],
-    datasetLabel: string,
-    colors: string | string[],
-    aspectRatio: number
-  ) {
+  private createChart(canvas: HTMLCanvasElement): void {
     this.chartInstance?.destroy();
 
+    const type = this.type();
     this.chartInstance = new Chart(canvas, {
       type,
       data: {
-        labels,
+        labels: this.labels(),
         datasets: [
           {
-            label: datasetLabel,
-            data,
-            backgroundColor: colors,
+            label: this.datasetLabel(),
+            data: this.data(),
+            backgroundColor: this.colors(),
             hoverOffset: type === 'pie' ? 4 : undefined,
           },
         ],
       },
       options: {
-        aspectRatio,
+        aspectRatio: this.aspectRatio(),
         onClick: (_event, elements) => {
-          if (!elements.length || !this.chartInstance) {
+          if (!elements.length) {
             return;
           }
-          const index = elements[0].index;
-          const label = this.chartInstance.data.labels?.[index];
+          const label = this.chartInstance?.data.labels?.[elements[0].index];
           if (label !== undefined && label !== null) {
             this.chartClick.emit(label as string | number);
           }
