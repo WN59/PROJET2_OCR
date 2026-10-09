@@ -1,0 +1,13 @@
+<header class="header">
+  <h1 class="header__title">{{ title() }}</h1>
+  @if (stats() && stats().length > 0) {
+    <div class="header__stats">
+      @for (stat of stats(); track stat.label) {
+        <div class="header__stat">
+          <p class="header__stat-label">{{ stat.label }}</p>
+          <p class="header__stat-value">{{ stat.value }}</p>
+        </div>
+      }
+    </div>
+  }
+</header>

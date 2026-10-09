@@ -8,7 +8,9 @@
 
 - Aucune architecture/organisation du projet, il y a seulement un dossier pages, pas de dossiers services, models, composants réutilisables, etc.
 
+- Passage de l'ensemble des composants en standalone pour éviter ngModules.
 
+- Mise à jour d'Angular et de l'intégralité des dépendances.
 
 ## Fichiers
 
@@ -18,7 +20,9 @@
 
 - La route 'not-found' n'est pas forcément nécessaire si utilisation de la route wildcard.
 
+### `app.module.ts`
 
+- Retrait du fichier afin de passer à des composants standalone et d'éviter les ngModules (dépréciés).
 
 ## Dossiers
 

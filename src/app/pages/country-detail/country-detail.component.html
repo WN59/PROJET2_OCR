@@ -1,0 +1,24 @@
+<app-header [title]="titlePage" [stats]="stats"></app-header>
+<section>
+  @if (error) {
+    <p class="error" role="alert">{{ error }}</p>
+  } @else {
+    <div class="chart-container wrapper-container">
+      <div class="container">
+        @if (chartLabels.length > 0) {
+          <app-chart
+            type="line"
+            [labels]="chartLabels"
+            [data]="chartData"
+            datasetLabel="Medals"
+            [colors]="'#0b868f'"
+            caption="Date"
+          ></app-chart>
+        }
+      </div>
+    </div>
+    <div class="center">
+      <a routerLink="/">Go back</a>
+    </div>
+  }
+</section>
