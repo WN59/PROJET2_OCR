@@ -1,4 +1,4 @@
-import {HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -7,11 +7,11 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
+import { OlympicService } from '../../core/services/olympic.service';
 import { Olympic } from '../../models/olympic.interface';
 import { Stat } from '../../models/stat.interface';
 import { ChartComponent } from '../../shared/components/chart/chart.component';
 import { HeaderComponent } from '../../shared/components/header/header.component';
-import { OlympicService } from 'src/app/core/services/olympic.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -32,14 +32,18 @@ export class DashboardComponent {
   readonly chartData = signal<number[]>([]);
 
   constructor() {
-    this.olympicService.getOlympics()
+    this.olympicService
+      .getOlympics()
       .pipe(takeUntilDestroyed())
       .subscribe({
-        next: (olympics: Olympic[]) => {
+        next: (olympics) => {
           this.olympics = olympics;
           const chartLabels = olympics.map((olympic) => olympic.country);
           const chartData = olympics.map((olympic) =>
-            olympic.participations.reduce((total, participation) => total + participation.medalsCount, 0)
+            olympic.participations.reduce(
+              (total, participation) => total + participation.medalsCount,
+              0
+            )
           );
           const josCount = new Set(
             olympics.flatMap((olympic) =>
@@ -59,11 +63,13 @@ export class DashboardComponent {
   }
 
   onCountryClick(countryName: string | number): void {
-    const olympic = this.olympics.find((item) => item.country === countryName);
-    if (!olympic) {
-      this.router.navigateByUrl('/not-found');
+    const countryId = this.olympics.find((olympic) => olympic.country === countryName)?.id;
+
+    if (countryId == null) {
+       this.router.navigateByUrl('/not-found');
       return;
     }
-    this.router.navigate(['country', olympic.id]);
+
+     this.router.navigate(['country', countryId]);
   }
 }
