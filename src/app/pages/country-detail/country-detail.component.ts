@@ -1,4 +1,4 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -11,6 +11,7 @@ import { Olympic } from '../../models/olympic.interface';
 import { Stat } from '../../models/stat.interface';
 import { ChartComponent } from '../../shared/components/chart/chart.component';
 import { HeaderComponent } from '../../shared/components/header/header.component';
+import { OlympicService } from 'src/app/core/services/olympic.service';
 
 @Component({
   selector: 'app-country-detail',
@@ -20,10 +21,9 @@ import { HeaderComponent } from '../../shared/components/header/header.component
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CountryDetailComponent {
-  private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly olympicService = inject(OlympicService);
   private readonly countryName = inject(ActivatedRoute).snapshot.paramMap.get('countryName');
-  private readonly olympicUrl = './assets/mock/olympic.json';
 
   readonly error = signal('');
   readonly titlePage = signal('');
@@ -32,21 +32,19 @@ export class CountryDetailComponent {
   readonly chartData = signal<number[]>([]);
 
   constructor() {
-    this.http
-      .get<Olympic[]>(this.olympicUrl)
+    if (!this.countryName) {
+      this.router.navigateByUrl('/not-found');
+      return;
+    }
+    this.olympicService.getOlympicByCountry(this.countryName)
       .pipe(takeUntilDestroyed())
       .subscribe({
-        next: (olympics) => {
-          const selectedCountry = olympics.find(
-            (olympic) => olympic.country === this.countryName
-          );
-
-          if (!selectedCountry) {
+        next: (olympic: Olympic | undefined) => {
+          if (!olympic) {
             this.router.navigateByUrl('/not-found');
             return;
           }
-
-          const { country, participations } = selectedCountry;
+          const { country, participations } = olympic;
           const chartLabels = participations.map((participation) => participation.year);
           const chartData = participations.map((participation) => participation.medalsCount);
           const totalMedals = chartData.reduce((total, medals) => total + medals, 0);
@@ -67,4 +65,6 @@ export class CountryDetailComponent {
         error: (error: HttpErrorResponse) => this.error.set(error.message),
       });
   }
+
+
 }

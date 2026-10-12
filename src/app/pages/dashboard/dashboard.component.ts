@@ -1,4 +1,4 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import {HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -11,6 +11,7 @@ import { Olympic } from '../../models/olympic.interface';
 import { Stat } from '../../models/stat.interface';
 import { ChartComponent } from '../../shared/components/chart/chart.component';
 import { HeaderComponent } from '../../shared/components/header/header.component';
+import { OlympicService } from 'src/app/core/services/olympic.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,9 +21,8 @@ import { HeaderComponent } from '../../shared/components/header/header.component
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardComponent {
-  private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
-  private readonly olympicUrl = './assets/mock/olympic.json';
+  private readonly olympicService = inject(OlympicService);
 
   readonly titlePage = 'Medals per Country';
   readonly error = signal('');
@@ -31,22 +31,13 @@ export class DashboardComponent {
   readonly chartData = signal<number[]>([]);
 
   constructor() {
-    this.http
-      .get<Olympic[]>(this.olympicUrl)
+    this.olympicService.getOlympics()
       .pipe(takeUntilDestroyed())
       .subscribe({
-        next: (olympics) => {
-
-          if (!olympics.length) {
-            return;
-          }
-
+        next: (olympics: Olympic[]) => {
           const chartLabels = olympics.map((olympic) => olympic.country);
           const chartData = olympics.map((olympic) =>
-            olympic.participations.reduce(
-              (total, participation) => total + participation.medalsCount,
-              0
-            )
+            olympic.participations.reduce((total, participation) => total + participation.medalsCount, 0)
           );
           const josCount = new Set(
             olympics.flatMap((olympic) =>
