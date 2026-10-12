@@ -36,21 +36,18 @@ export class DashboardComponent {
       .pipe(takeUntilDestroyed())
       .subscribe({
         next: (olympics) => {
+
           if (!olympics.length) {
             return;
           }
 
-          console.log(olympics);
-
           const chartLabels = olympics.map((olympic) => olympic.country);
-          console.log(chartLabels);
           const chartData = olympics.map((olympic) =>
             olympic.participations.reduce(
               (total, participation) => total + participation.medalsCount,
               0
             )
           );
-          console.log(chartData);
           const josCount = new Set(
             olympics.flatMap((olympic) =>
               olympic.participations.map((participation) => participation.year)
