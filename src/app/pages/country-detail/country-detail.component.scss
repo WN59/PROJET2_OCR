@@ -1,0 +1,20 @@
+.chart-wrapper {
+  display: flex;
+  justify-content: center;
+
+  app-chart {
+    width: min(50%, 100%);
+  }
+}
+
+.back-link {
+  display: flex;
+  justify-content: center;
+  margin: 16px 0;
+}
+
+@media screen and (max-width: 1000px) {
+  .chart-wrapper app-chart {
+    width: 100%;
+  }
+}
