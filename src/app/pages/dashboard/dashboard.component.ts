@@ -23,6 +23,7 @@ import { OlympicService } from 'src/app/core/services/olympic.service';
 export class DashboardComponent {
   private readonly router = inject(Router);
   private readonly olympicService = inject(OlympicService);
+  private olympics: Olympic[] = [];
 
   readonly titlePage = 'Medals per Country';
   readonly error = signal('');
@@ -35,6 +36,7 @@ export class DashboardComponent {
       .pipe(takeUntilDestroyed())
       .subscribe({
         next: (olympics: Olympic[]) => {
+          this.olympics = olympics;
           const chartLabels = olympics.map((olympic) => olympic.country);
           const chartData = olympics.map((olympic) =>
             olympic.participations.reduce((total, participation) => total + participation.medalsCount, 0)
@@ -57,6 +59,11 @@ export class DashboardComponent {
   }
 
   onCountryClick(countryName: string | number): void {
-    this.router.navigate(['country', countryName]);
+    const olympic = this.olympics.find((item) => item.country === countryName);
+    if (!olympic) {
+      this.router.navigateByUrl('/not-found');
+      return;
+    }
+    this.router.navigate(['country', olympic.id]);
   }
 }

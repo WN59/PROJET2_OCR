@@ -7,7 +7,7 @@ export const routes: Routes = [
       import('./pages/dashboard/dashboard.component').then((m) => m.DashboardComponent),
   },
   {
-    path: 'country/:countryName',
+    path: 'country/:id',
     loadComponent: () =>
       import('./pages/country-detail/country-detail.component').then(
         (m) => m.CountryDetailComponent

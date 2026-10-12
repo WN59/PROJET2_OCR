@@ -23,7 +23,7 @@ import { OlympicService } from 'src/app/core/services/olympic.service';
 export class CountryDetailComponent {
   private readonly router = inject(Router);
   private readonly olympicService = inject(OlympicService);
-  private readonly countryName = inject(ActivatedRoute).snapshot.paramMap.get('countryName');
+  private readonly countryId = inject(ActivatedRoute).snapshot.paramMap.get('id');
 
   readonly error = signal('');
   readonly titlePage = signal('');
@@ -32,11 +32,21 @@ export class CountryDetailComponent {
   readonly chartData = signal<number[]>([]);
 
   constructor() {
-    if (!this.countryName) {
+    const id = this.countryId;
+
+    if (id === null) {
       this.router.navigateByUrl('/not-found');
       return;
     }
-    this.olympicService.getOlympicByCountry(this.countryName)
+  
+    const countryId = Number(id);
+  
+    if (!Number.isInteger(countryId) || countryId <= 0) {
+      this.router.navigateByUrl('/not-found');
+      return;
+    }
+    
+    this.olympicService.getOlympicById(countryId)
       .pipe(takeUntilDestroyed())
       .subscribe({
         next: (olympic: Olympic | undefined) => {
