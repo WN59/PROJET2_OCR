@@ -7,11 +7,10 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { Olympic } from '../../models/olympic.interface';
+import { OlympicService } from '../../core/services/olympic.service';
 import { Stat } from '../../models/stat.interface';
 import { ChartComponent } from '../../shared/components/chart/chart.component';
 import { HeaderComponent } from '../../shared/components/header/header.component';
-import { OlympicService } from 'src/app/core/services/olympic.service';
 
 @Component({
   selector: 'app-country-detail',
@@ -23,7 +22,7 @@ import { OlympicService } from 'src/app/core/services/olympic.service';
 export class CountryDetailComponent {
   private readonly router = inject(Router);
   private readonly olympicService = inject(OlympicService);
-  private readonly countryName = inject(ActivatedRoute).snapshot.paramMap.get('countryName');
+  private readonly countryIdParam = inject(ActivatedRoute).snapshot.paramMap.get('id');
 
   readonly error = signal('');
   readonly titlePage = signal('');
@@ -32,18 +31,23 @@ export class CountryDetailComponent {
   readonly chartData = signal<number[]>([]);
 
   constructor() {
-    if (!this.countryName) {
-      this.router.navigateByUrl('/not-found');
+    const countryId = Number(this.countryIdParam);
+
+    if (!Number.isInteger(countryId) || countryId <= 0) {
+      this.goToNotFound();
       return;
     }
-    this.olympicService.getOlympicByCountry(this.countryName)
+
+    this.olympicService
+      .getOlympicById(countryId)
       .pipe(takeUntilDestroyed())
       .subscribe({
-        next: (olympic: Olympic | undefined) => {
+        next: (olympic) => {
           if (!olympic) {
-            this.router.navigateByUrl('/not-found');
+            this.goToNotFound();
             return;
           }
+
           const { country, participations } = olympic;
           const chartLabels = participations.map((participation) => participation.year);
           const chartData = participations.map((participation) => participation.medalsCount);
@@ -66,5 +70,7 @@ export class CountryDetailComponent {
       });
   }
 
-
+  private goToNotFound(): void  {
+     this.router.navigateByUrl('/not-found');
+  }
 }

@@ -12,11 +12,6 @@ export class OlympicService {
     return of(olympicMock);
   }
 
-  /** Récupère un pays par son nom. */
-  getOlympicByCountry(countryName: string): Observable<Olympic | undefined> {
-    return of(olympicMock.find((olympic) => olympic.country === countryName));
-  }
-
   /** Récupère un pays par son ID. */
   getOlympicById(id: number): Observable<Olympic | undefined> {
     return of(olympicMock.find((olympic) => olympic.id === id));

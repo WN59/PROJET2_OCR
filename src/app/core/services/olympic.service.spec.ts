@@ -20,8 +20,8 @@ describe('OlympicService', () => {
     expect(olympics[0].country).toBeDefined();
   });
 
-  it('should return a country by name', async () => {
-    const italy = await firstValueFrom(service.getOlympicByCountry('Italy'));
+  it('should return a country by id', async () => {
+    const italy = await firstValueFrom(service.getOlympicById(1));
     expect(italy?.country).toBe('Italy');
   });
 });

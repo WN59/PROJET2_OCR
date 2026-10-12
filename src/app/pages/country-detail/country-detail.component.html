@@ -4,7 +4,7 @@
     <p class="error" role="alert">{{ error() }}</p>
   } @else {
     <div class="chart-wrapper">
-      @if (chartLabels() && chartLabels().length > 0) {
+      @if (chartLabels().length > 0) {
         <app-chart
           type="line"
           [labels]="chartLabels()"
