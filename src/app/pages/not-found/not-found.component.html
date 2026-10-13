@@ -1,5 +1,9 @@
-<app-header [title]="titlePage" />
-<section class="not-found">
-  <p class="error" role="alert">{{ errorMessage }}</p>
-  <a routerLink="/">Go back to the home page</a>
-</section>
+<div class="layout">
+  <div class="layout__full">
+    <app-header [title]="titlePage" />
+  </div>
+  <section class="state layout__full" role="alert">
+    <p class="error">{{ errorMessage }}</p>
+    <a routerLink="/" class="btn" aria-label="Back to home page">Back to home</a>
+  </section>
+</div>

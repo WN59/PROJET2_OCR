@@ -1,11 +1,28 @@
 .chart {
-  width: 100%;
+  width: min(100%, 720px);
+  margin: 0 auto;
+}
+
+.chart--pie {
+  width: min(100%, 560px);
+}
+
+/* Uniquement pour le pie : taille fixe via CSS */
+.chart--pie .chart__frame {
+  position: relative;
+  aspect-ratio: 1;
+}
+
+.chart canvas:focus-visible {
+  outline: 3px solid var(--color-teal);
+  outline-offset: 4px;
+  border-radius: 4px;
 }
 
 .chart__caption {
   margin: 8px 0 0;
   text-align: center;
-  color: gray;
-  font-size: 1.1rem;
+  color: var(--color-text-muted);
+  font-size: 1.05rem;
   font-weight: 600;
 }

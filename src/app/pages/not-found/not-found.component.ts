@@ -12,7 +12,7 @@ import { HeaderComponent } from '../../shared/components/header/header.component
 })
 
 export class NotFoundComponent {
-  readonly titlePage = 'No corresponding page found';
+  readonly titlePage = 'The page you are looking for does not exist';
   readonly errorMessage = this.getErrorMessage();
 
   private getErrorMessage(): string {

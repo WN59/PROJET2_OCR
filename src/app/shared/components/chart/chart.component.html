@@ -1,5 +1,16 @@
-<div class="chart">
-  <canvas #canvas></canvas>
+<div class="chart" [class.chart--pie]="type() === 'pie'">
+  <p class="sr-only">{{ description() }}</p>
+  <div class="chart__frame">
+    <canvas
+      #canvas
+      tabindex="0"
+      role="img"
+      [attr.aria-label]="description()"
+      (focus)="onFocus()"
+      (blur)="onBlur()"
+      (keydown)="onKeydown($event)"
+    ></canvas>
+  </div>
   @if (caption()) {
     <h2 class="chart__caption">{{ caption() }}</h2>
   }
