@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ERROR_MESSAGES } from '../../core/constants/error-messages';
 import { OlympicService } from '../../core/services/olympic.service';
 import { Stat } from '../../models/stat.interface';
 import { ChartComponent } from '../../shared/components/chart/chart.component';
@@ -19,6 +20,7 @@ import { HeaderComponent } from '../../shared/components/header/header.component
   styleUrl: './country-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+
 export class CountryDetailComponent {
   private readonly router = inject(Router);
   private readonly olympicService = inject(OlympicService);
@@ -34,7 +36,7 @@ export class CountryDetailComponent {
     const countryId = Number(this.countryIdParam);
 
     if (!Number.isInteger(countryId) || countryId <= 0) {
-      this.goToNotFound();
+      this.goToNotFound(ERROR_MESSAGES.countryNotFound);
       return;
     }
 
@@ -44,11 +46,18 @@ export class CountryDetailComponent {
       .subscribe({
         next: (olympic) => {
           if (!olympic) {
-            this.goToNotFound();
+            this.goToNotFound(ERROR_MESSAGES.countryNotFound);
             return;
           }
 
           const { country, participations } = olympic;
+
+          if (!participations?.length) {
+            this.titlePage.set(country);
+            this.error.set(ERROR_MESSAGES.missingData);
+            return;
+          }
+
           const chartLabels = participations.map((participation) => participation.year);
           const chartData = participations.map((participation) => participation.medalsCount);
           const totalMedals = chartData.reduce((total, medals) => total + medals, 0);
@@ -66,11 +75,15 @@ export class CountryDetailComponent {
             { label: 'Total number of athletes', value: totalAthletes },
           ]);
         },
-        error: (error: HttpErrorResponse) => this.error.set(error.message),
+        error: (_error: HttpErrorResponse) => {
+          this.titlePage.set(ERROR_MESSAGES.unableLoadCountryData);
+          this.error.set(ERROR_MESSAGES.loadFailed);
+        },
+
       });
   }
 
-  private goToNotFound(): void  {
-     this.router.navigateByUrl('/not-found');
+  private goToNotFound(message: string): void {
+     this.router.navigateByUrl('/not-found', { state: { message } });
   }
 }
