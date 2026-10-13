@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { ERROR_MESSAGES } from '../../core/constants/error-messages';
 import { HeaderComponent } from '../../shared/components/header/header.component';
 
 @Component({
@@ -9,6 +10,13 @@ import { HeaderComponent } from '../../shared/components/header/header.component
   templateUrl: './not-found.component.html',
   styleUrl: './not-found.component.scss',
 })
+
 export class NotFoundComponent {
   readonly titlePage = 'No corresponding page found';
+  readonly errorMessage = this.getErrorMessage();
+
+  private getErrorMessage(): string {
+    const message = history.state?.['message'];
+    return typeof message === 'string' ? message : ERROR_MESSAGES.urlNotFound;
+  }
 }

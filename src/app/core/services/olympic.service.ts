@@ -6,13 +6,14 @@ import { Olympic } from '../../models/olympic.interface';
 @Injectable({
   providedIn: 'root',
 })
+
 export class OlympicService {
-  /** Récupère la liste complète des pays olympiques. */
+  /* Récupère la liste complète des pays olympiques. */
   getOlympics(): Observable<Olympic[]> {
     return of(olympicMock);
   }
 
-  /** Récupère un pays par son ID. */
+  /* Récupère un pays par son ID. */
   getOlympicById(id: number): Observable<Olympic | undefined> {
     return of(olympicMock.find((olympic) => olympic.id === id));
   }

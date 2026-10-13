@@ -16,6 +16,7 @@ import { Chart, ChartType } from 'chart.js/auto';
   styleUrl: './chart.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+
 export class ChartComponent implements OnDestroy {
   private readonly canvas = viewChild<ElementRef<HTMLCanvasElement>>('canvas');
   private chartInstance: Chart | null = null;

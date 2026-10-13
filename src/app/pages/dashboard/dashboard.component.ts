@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
+import { ERROR_MESSAGES } from '../../core/constants/error-messages';
 import { OlympicService } from '../../core/services/olympic.service';
 import { Olympic } from '../../models/olympic.interface';
 import { Stat } from '../../models/stat.interface';
@@ -20,6 +21,7 @@ import { HeaderComponent } from '../../shared/components/header/header.component
   styleUrl: './dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+
 export class DashboardComponent {
   private readonly router = inject(Router);
   private readonly olympicService = inject(OlympicService);
@@ -37,6 +39,11 @@ export class DashboardComponent {
       .pipe(takeUntilDestroyed())
       .subscribe({
         next: (olympics) => {
+          if (!olympics.length) {
+            this.error.set(ERROR_MESSAGES.missingData);
+            return;
+          }
+
           this.olympics = olympics;
           const chartLabels = olympics.map((olympic) => olympic.country);
           const chartData = olympics.map((olympic) =>
@@ -58,7 +65,7 @@ export class DashboardComponent {
             { label: 'Number of JOs', value: josCount },
           ]);
         },
-        error: (error: HttpErrorResponse) => this.error.set(error.message),
+        error: (_error: HttpErrorResponse) => this.error.set(ERROR_MESSAGES.loadFailed),
       });
   }
 
@@ -66,10 +73,14 @@ export class DashboardComponent {
     const countryId = this.olympics.find((olympic) => olympic.country === countryName)?.id;
 
     if (countryId == null) {
-       this.router.navigateByUrl('/not-found');
+      this.goToNotFound(ERROR_MESSAGES.countryNotFound);
       return;
     }
 
      this.router.navigate(['country', countryId]);
+  }
+
+  private goToNotFound(message: string): void {
+     this.router.navigateByUrl('/not-found', { state: { message } });
   }
 }

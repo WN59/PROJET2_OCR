@@ -7,6 +7,7 @@ import { Stat } from '../../../models/stat.interface';
   styleUrl: './header.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+
 export class HeaderComponent {
   readonly title = input.required<string>();
   readonly stats = input<Stat[]>([]);
