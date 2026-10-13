@@ -38,12 +38,19 @@ export class ChartComponent implements OnDestroy {
   readonly caption = input<string>();
   readonly chartClick = output<string | number>();
 
-  readonly description = computed(() => {
-    const details = this.labels()
-      .map((label, index) => `${label}: ${this.data()[index]}`)
-      .join(', ');
-    return `${this.datasetLabel()} — ${details}. Use arrow keys to explore.`;
-  });
+  /** Id unique pour lier le canvas à sa description (aria-describedby). */
+  readonly descId = `chart-desc-${crypto.randomUUID()}`;
+
+  /** Nom court du graphique (WCAG : accessible name). */
+  readonly chartName = computed(() => `${this.datasetLabel()} chart`);
+
+  /** Données en lignes pour l’alternative textuelle structurée. */
+  readonly descriptionItems = computed(() =>
+    this.labels().map((label, index) => ({
+      label,
+      value: this.data()[index],
+    }))
+  );
 
   constructor() {
     effect(() => {

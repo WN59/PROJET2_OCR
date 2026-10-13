@@ -1,11 +1,33 @@
 <div class="chart" [class.chart--pie]="type() === 'pie'">
-  <p class="sr-only">{{ description() }}</p>
+  <!-- Alternative textuelle structurée (WCAG 1.1.1) — une seule fois -->
+  <div class="sr-only" [id]="descId">
+    <p>Use arrow keys to explore, Enter to select.</p>
+    <table>
+      <caption>{{ datasetLabel() }} Chart Data</caption>
+      <thead>
+        <tr>
+          <th scope="col">Country Name:</th>
+          <th scope="col">Medals Count:</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of descriptionItems(); track item.label) {
+          <tr>
+            <th scope="row">{{ item.label }}</th>
+            <td>{{ item.value }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
   <div class="chart__frame">
     <canvas
       #canvas
       tabindex="0"
       role="img"
-      [attr.aria-label]="description()"
+      [attr.aria-label]="chartName()"
+      [attr.aria-describedby]="descId"
       (focus)="onFocus()"
       (blur)="onBlur()"
       (keydown)="onKeydown($event)"
