@@ -1,4 +1,4 @@
-<div class="layout">
+<section class="layout">
   @if (titlePage()) {
     <div class="layout__full">
       <app-header [title]="titlePage()" [stats]="stats()" />
@@ -14,19 +14,20 @@
   } @else if (empty()) {
     <p class="state state__empty layout__full">{{ emptyMessage }}</p>
   } @else {
-    <section class="layout__chart">
+    <div class="layout__chart">
       <app-chart
         type="line"
         [labels]="chartLabels()"
         [data]="chartData()"
         datasetLabel="Medals"
+        labelHeader="Date"
         colors="#047a82"
         caption="Date"
       />
-    </section>
+    </div>
   }
 
-  <aside class="layout__aside">
+  <div class="layout__aside">
     <a routerLink="/" class="btn" aria-label="Back to dashboard">Back to dashboard</a>
-  </aside>
-</div>
+  </div>
+</section>
