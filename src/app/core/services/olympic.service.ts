@@ -1,24 +1,32 @@
 import { Injectable } from '@angular/core';
-import { delay, Observable, of, throwError } from 'rxjs';
+import { catchError, delay, map, Observable, of, shareReplay, throwError } from 'rxjs';
 import { olympicMock } from '../../data/olympic.mock';
 import { Olympic } from '../../models/olympic.interface';
+import { ERROR_MESSAGES } from '../constants/error-messages';
 
 @Injectable({
   providedIn: 'root',
 })
-
 export class OlympicService {
-  /** Récupère la liste complète des pays olympiques. */
+  /* Source unique + cache : 1 chargement partagé entre toutes les pages. */
+  private readonly olympics$: Observable<Olympic[]> = (
+    // throwError(() => new Error('error')) as Observable<Olympic[]>
+    of(olympicMock)
+  ).pipe(
+    delay(1000),
+    catchError(() => throwError(() => new Error(ERROR_MESSAGES.loadFailed))),
+    shareReplay({ bufferSize: 1, refCount: true })
+  );
+
+  /** Liste complète des pays olympiques. */
   getOlympics(): Observable<Olympic[]> {
-    return of(olympicMock).pipe(delay(1000));
-    //return throwError(() => new Error('Not implemented'));
-    //return of([]);
+    return this.olympics$;
   }
 
-  /** Récupère un pays par son ID. */
+  /** Un pays par ID (dérivé du même cache). */
   getOlympicById(id: number): Observable<Olympic | undefined> {
-    return of(olympicMock.find((olympic) => olympic.id === id)).pipe(delay(500));
-    //return throwError(() => new Error('Not implemented'));
-    //return of(undefined);
+    return this.olympics$.pipe(
+      map((olympics) => olympics.find((olympic) => olympic.id === id))
+    );
   }
 }

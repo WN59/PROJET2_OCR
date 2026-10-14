@@ -112,7 +112,7 @@ L’architecture est prête pour brancher un vrai back-end sans refonte des page
 1. **Point unique de changement** : remplacer dans `OlympicService` le `of(olympicMock)` par un `HttpClient.get<Olympic[]>('...')`.
 2. **Contrats stables** : les interfaces `Olympic` / `Participation` définissent le format attendu de l’API.
 3. **Pages inchangées** : elles s’abonnent déjà à des `Observable` ; un appel HTTP s’intègre naturellement.
-4. **Évolutions possibles** : URL dans `environment.ts`, cache (`shareReplay`), gestion d’erreur encore plus centralisée dans le service.
+4. **Évolutions possibles** : URL dans `environment.ts`.
 
 ## 7. Flux de données (vue d’ensemble)
 

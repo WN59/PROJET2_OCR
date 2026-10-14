@@ -1,4 +1,3 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -71,9 +70,9 @@ export class DashboardComponent {
             { label: 'Number of countries', value: chartLabels.length },
           ]);
         },
-        error: (_error: HttpErrorResponse) => {
+        error: (error: Error) => {
           this.loading.set(false);
-          this.error.set(ERROR_MESSAGES.loadFailed);
+          this.error.set(error.message);
         },
       });
   }
