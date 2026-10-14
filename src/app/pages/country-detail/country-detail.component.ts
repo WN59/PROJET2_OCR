@@ -1,4 +1,3 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -12,10 +11,11 @@ import { OlympicService } from '../../core/services/olympic.service';
 import { Stat } from '../../models/stat.interface';
 import { ChartComponent } from '../../shared/components/chart/chart.component';
 import { HeaderComponent } from '../../shared/components/header/header.component';
+import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
 
 @Component({
   selector: 'app-country-detail',
-  imports: [HeaderComponent, ChartComponent, RouterLink],
+  imports: [HeaderComponent, ChartComponent, RouterLink, SpinnerComponent],
   templateUrl: './country-detail.component.html',
   styleUrl: './country-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -26,6 +26,9 @@ export class CountryDetailComponent {
   private readonly olympicService = inject(OlympicService);
   private readonly countryIdParam = inject(ActivatedRoute).snapshot.paramMap.get('id');
 
+  readonly emptyMessage = ERROR_MESSAGES.empty;
+  readonly loading = signal(true);
+  readonly empty = signal(false);
   readonly error = signal('');
   readonly titlePage = signal('');
   readonly stats = signal<Stat[]>([]);
@@ -36,6 +39,7 @@ export class CountryDetailComponent {
     const countryId = Number(this.countryIdParam);
 
     if (!Number.isInteger(countryId) || countryId <= 0) {
+      this.loading.set(false);
       this.goToNotFound(ERROR_MESSAGES.countryNotFound);
       return;
     }
@@ -45,16 +49,18 @@ export class CountryDetailComponent {
       .pipe(takeUntilDestroyed())
       .subscribe({
         next: (olympic) => {
+          this.loading.set(false);
+
           if (!olympic) {
             this.goToNotFound(ERROR_MESSAGES.countryNotFound);
             return;
           }
 
           const { country, participations } = olympic;
+          this.titlePage.set(country);
 
           if (!participations?.length) {
-            this.titlePage.set(country);
-            this.error.set(ERROR_MESSAGES.missingData);
+            this.empty.set(true);
             return;
           }
 
@@ -66,7 +72,6 @@ export class CountryDetailComponent {
             0
           );
 
-          this.titlePage.set(country);
           this.chartLabels.set(chartLabels);
           this.chartData.set(chartData);
           this.stats.set([
@@ -75,11 +80,10 @@ export class CountryDetailComponent {
             { label: 'Total number of athletes', value: totalAthletes },
           ]);
         },
-        error: (_error: HttpErrorResponse) => {
-          this.titlePage.set(ERROR_MESSAGES.unableLoadCountryData);
-          this.error.set(ERROR_MESSAGES.loadFailed);
+        error: (error: Error) => {
+          this.loading.set(false);
+          this.error.set(error.message);
         },
-
       });
   }
 
