@@ -1,4 +1,4 @@
-<div class="layout">
+<section class="layout">
   <div class="layout__full">
     <app-header [title]="titlePage" [stats]="stats()" />
   </div>
@@ -12,14 +12,15 @@
   } @else if (empty()) {
     <p class="state state__empty layout__full">{{ emptyMessage }}</p>
   } @else {
-    <section class="layout__chart">
+    <div class="layout__chart">
       <app-chart
         type="pie"
         [labels]="chartLabels()"
         [data]="chartData()"
         datasetLabel="Medals"
+        labelHeader="Country"
         (chartClick)="onCountryClick($event)"
       />
-    </section>
+    </div>
   }
-</div>
+</section>

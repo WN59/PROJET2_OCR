@@ -27,6 +27,8 @@ export class ChartComponent implements OnDestroy {
   readonly labels = input.required<(string | number)[]>();
   readonly data = input.required<number[]>();
   readonly datasetLabel = input('Medals');
+  /** En-tête de la 1re colonne du tableau A11y (ex. Country, Date). */
+  readonly labelHeader = input('Label');
   readonly colors = input<string | string[]>([
     '#8f6263',
     '#9bb0c4',
