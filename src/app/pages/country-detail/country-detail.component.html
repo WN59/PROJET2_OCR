@@ -1,0 +1,33 @@
+<section class="layout">
+  @if (titlePage()) {
+    <div class="layout__full">
+      <app-header [title]="titlePage()" [stats]="stats()" />
+    </div>
+  }
+
+  @if (loading()) {
+    <app-spinner class="layout__full" />
+  } @else if (error()) {
+    <div class="state layout__full" role="alert">
+      <p class="error">{{ error() }}</p>
+    </div>
+  } @else if (empty()) {
+    <p class="state state__empty layout__full">{{ emptyMessage }}</p>
+  } @else {
+    <div class="layout__chart">
+      <app-chart
+        type="line"
+        [labels]="chartLabels()"
+        [data]="chartData()"
+        datasetLabel="Medals"
+        labelHeader="Date"
+        colors="#047a82"
+        caption="Date"
+      />
+    </div>
+  }
+
+  <div class="layout__aside">
+    <a routerLink="/" class="btn" aria-label="Back to dashboard">Back to dashboard</a>
+  </div>
+</section>

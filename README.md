@@ -1,29 +1,83 @@
-# OlympicGamesStarter
+# Olympic Games App
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.0.6.
+Application Angular affichant les résultats olympiques par pays : dashboard (graphique en secteurs) et détail d’un pays (graphique en ligne).
 
-Don't forget to install your node_modules before starting (`npm install`).
+Projet OpenClassRooms — Angular 22 (standalone).
 
-## Development server
+## Prérequis
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+- [Node.js](https://nodejs.org/) **LTS** (v20 ou v22 recommandé)
+- npm (inclus avec Node.js)
 
-## Build
+## Installation
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+```bash
+npm install
+```
 
-## Where to start
+## Lancer le projet
 
-As you can see, an architecture has already been defined for the project. It is just a suggestion, you can choose to use your own. The predefined architecture includes (in addition to the default angular architecture) the following:
+```bash
+npm start
+```
 
-- `components` folder: contains every reusable components
-- `pages` folder: contains components used for routing
-- `core` folder: contains the business logic (`services` and `models` folders)
+Puis ouvrir [http://localhost:4200/](http://localhost:4200/).
 
-I suggest you to start by understanding this starter code. Pay an extra attention to the `app-routing.module.ts` and the `olympic.service.ts`.
+| Commande        | Description                          |
+|-----------------|--------------------------------------|
+| `npm start`     | Serveur de développement             |
+| `npm run build` | Build de production (`dist/`)        |
+| `npm test`      | Lancer les tests unitaires           |
 
-Once mastered, you should continue by creating the typescript interfaces inside the `models` folder. As you can see I already created two files corresponding to the data included inside the `olympic.json`. With your interfaces, improve the code by replacing every `any` by the corresponding interface.
+## Fonctionnalités
 
-You're now ready to implement the requested features.
+- **Dashboard** : médailles par pays (pie chart), stats (nombre de JO / pays)
+- **Détail pays** : évolution des médailles (line chart), stats (participations, médailles, athlètes)
+- **Navigation** : clic ou clavier (Tab + flèches + Entrée) sur le pie pour ouvrir un pays
+- **États UI** : loading (spinner), empty (« Aucune donnée »), error + bouton retour
+- **404** : route wildcard pour URL ou pays inexistant
+- **Responsive** : grille 4 / 8 / 12 colonnes (mobile / tablette / desktop)
+- **Accessibilité** : contrastes AA, focus visible, `aria-label`, description textuelle des graphiques
 
-Good luck!
+## Structure
+
+```
+src/
+├── app/
+│   ├── core/
+│   │   ├── constants/          # Messages d’erreur
+│   │   └── services/           # OlympicService
+│   ├── models/                 # Interfaces (Olympic, Participation, Stat)
+│   ├── pages/
+│   │   ├── dashboard/          # Accueil
+│   │   ├── country-detail/     # Détail d’un pays
+│   │   └── not-found/          # Page d’erreur
+│   └── shared/components/
+│       ├── header/             # Titre + stats
+│       ├── chart/              # Graphiques Chart.js
+│       └── spinner/            # Indicateur de chargement
+└── assets/mock/
+    └── olympic.json            # Données olympiques
+```
+
+### Routes
+
+| URL             | Page          |
+|-----------------|---------------|
+| `/`             | Dashboard     |
+| `/country/:id`  | Détail pays   |
+| `/**` (autres)  | Not found     |
+
+## Dépendances principales
+
+| Package       | Rôle                                      |
+|---------------|-------------------------------------------|
+| Angular 22    | Framework (standalone, signals, router)   |
+| Chart.js 4    | Graphiques pie & line                     |
+| RxJS 7        | Observables (service / chargement)        |
+
+Les données sont chargées depuis `assets/mock/olympic.json` via `OlympicService` (`HttpClient`).
+
+## Auteur
+
+WN59 | Projet réalisé dans le cadre de la formation OpenClassRooms (Projet2).

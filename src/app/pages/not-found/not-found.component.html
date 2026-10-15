@@ -1,4 +1,9 @@
-<div class="center">
-  <h2>No corresponding page found</h2>
-  <a routerLink="">Go back</a>
-</div>
+<section class="layout">
+  <div class="layout__full">
+    <app-header [title]="titlePage" />
+  </div>
+  <div class="state layout__full" role="alert">
+    <p class="error">{{ errorMessage }}</p>
+    <a routerLink="/" class="btn" aria-label="Back to home page">Back to home</a>
+  </div>
+</section>
