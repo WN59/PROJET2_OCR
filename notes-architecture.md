@@ -96,23 +96,24 @@
 
 
 ```text
-src/app/
-├── core/
-│   └── services/
-│       └── olympic.service.ts
-├── shared/
-│   └── components/
-│       ├── header/
-│       └── chart/
-├── pages/
-│   ├── dashboard/
-│   ├── country-detail/
-│   └── not-found/
-└── models/
-    ├── participation.interface.ts
-    ├── olympic.interface.ts
-    └── stat.interface.ts
-└── data/
-    └── olympic.mock.ts
+src/
+├── app/
+│   ├── core/
+│   │   └── services/
+│   │       └── olympic.service.ts
+│   ├── shared/
+│   │   └── components/
+│   │       ├── header/
+│   │       └── chart/
+│   ├── pages/
+│   │   ├── dashboard/
+│   │   ├── country-detail/
+│   │   └── not-found/
+│   └── models/
+│       ├── participation.interface.ts
+│       ├── olympic.interface.ts
+│       └── stat.interface.ts
+└── assets/mock/
+    └── olympic.json
 ```
 

@@ -5,30 +5,31 @@ Documentation de l’application Angular après refactoring.
 ## 1. Arborescence
 
 ```text
-src/app/
-├── app.component.ts
-├── app.config.ts
-├── app.routes.ts                 # Routes lazy-loadées
-├── core/
-│   ├── constants/
-│   │   └── error-messages.ts     # Messages d’erreur utilisateur
-│   └── services/
-│       └── olympic.service.ts    # Accès aux données olympiques
-├── shared/
-│   └── components/
-│       ├── header/               # Header réutilisable avec titre de page et statistiques optionnels.
-│       ├── chart/                # Graphique Chart.js (pie / line)
-│       └── spinner/              # Indicateur de chargement
-├── pages/
-│   ├── dashboard/                # Vue d’ensemble (pie chart)
-│   ├── country-detail/           # Détail d’un pays (line chart)
-│   └── not-found/                # Page 404 / pays et page introuvable
-├── models/
-│   ├── olympic.interface.ts # Interface pour le typage des données
-│   ├── participation.interface.ts
-│   └── stat.interface.ts
-└── data/
-    └── olympic.mock.ts           # Données mock
+src/
+├── app/
+│   ├── app.component.ts
+│   ├── app.config.ts
+│   ├── app.routes.ts                 # Routes lazy-loadées
+│   ├── core/
+│   │   ├── constants/
+│   │   │   └── error-messages.ts     # Messages d’erreur utilisateur
+│   │   └── services/
+│   │       └── olympic.service.ts    # Accès aux données olympiques
+│   ├── shared/
+│   │   └── components/
+│   │       ├── header/               # Header réutilisable avec titre de page et statistiques optionnels.
+│   │       ├── chart/                # Graphique Chart.js (pie / line)
+│   │       └── spinner/              # Indicateur de chargement
+│   ├── pages/
+│   │   ├── dashboard/                # Vue d’ensemble (pie chart)
+│   │   ├── country-detail/           # Détail d’un pays (line chart)
+│   │   └── not-found/                # Page 404 / pays et page introuvable
+│   └── models/
+│       ├── olympic.interface.ts      # Interface pour le typage des données
+│       ├── participation.interface.ts
+│       └── stat.interface.ts
+└── assets/mock/
+    └── olympic.json                  # Données olympiques (JSON)
 ```
 
 ## 2. Choix techniques globaux
@@ -58,7 +59,7 @@ src/app/
 | **Country-detail** | Détail d’un pays (entrées, médailles, athlètes) et graphique **courbe** des médailles par année. Redirige vers not-found si l’id / le pays est inconnu. |
 | **Not-found** | Page d’erreur pour les URLs invalides (wildcard) et les redirections (message via `router.state`). |
 
-Les pages `consomment` le OlympicService : elles ne lisent plus directement le mock/JSON. Elles se chargent de la transformation pour l’affichage (labels/data du graphique, tableau de Stat) et de la navigation.
+Les pages `consomment` le OlympicService : elles ne lisent pas directement le JSON. Elles se chargent de la transformation pour l’affichage (labels/data du graphique, tableau de Stat) et de la navigation.
 
 ### Composants partagés
 
@@ -80,7 +81,7 @@ Les pages `consomment` le OlympicService : elles ne lisent plus directement le m
 
 ### Rôle
 
-Centraliser l’accès aux données olympiques. Les composants demandent des données au service ; ils ne connaissent pas la source concrète (mock aujourd’hui, API demain).
+Centraliser l’accès aux données olympiques. Les composants demandent des données au service ; ils ne connaissent pas la source concrète (JSON aujourd’hui, API demain).
 
 ### API actuelle
 
@@ -89,7 +90,7 @@ Centraliser l’accès aux données olympiques. Les composants demandent des don
 | `getOlympics()` | Retourne `Observable<Olympic[]>` — liste complète des pays. |
 | `getOlympicById(id)` | Retourne `Observable<Olympic \| undefined>` — un pays par identifiant. |
 
-Source actuelle : `data/olympic.mock.ts` via `of(...).pipe(delay(...))` (le delay simule un chargement pour afficher le spinner).
+Source actuelle : `assets/mock/olympic.json` via `HttpClient.get<Olympic[]>(...)`, avec cache `shareReplay`.
 
 ### Usage dans l’app
 
@@ -109,7 +110,7 @@ Source actuelle : `data/olympic.mock.ts` via `of(...).pipe(delay(...))` (le dela
 
 L’architecture est prête pour brancher un vrai back-end sans refonte des pages :
 
-1. **Point unique de changement** : remplacer dans `OlympicService` le `of(olympicMock)` par un `HttpClient.get<Olympic[]>('...')`.
+1. **Point unique de changement** : remplacer dans `OlympicService` l’URL `assets/mock/olympic.json` par celle de l’API.
 2. **Contrats stables** : les interfaces `Olympic` / `Participation` définissent le format attendu de l’API.
 3. **Pages inchangées** : elles s’abonnent déjà à des `Observable` ; un appel HTTP s’intègre naturellement.
 4. **Évolutions possibles** : URL dans `environment.ts`.
@@ -117,11 +118,11 @@ L’architecture est prête pour brancher un vrai back-end sans refonte des page
 ## 7. Flux de données (vue d’ensemble)
 
 ```text
-olympic.mock.ts  →  OlympicService  →  Pages (dashboard / country-detail)
-                                              ↓
-                         Header + Chart + Spinner (affichage / états)
-                                              ↓
-                         Not-found (URL ou pays introuvable)
+olympic.json  →  OlympicService (HttpClient)  →  Pages (dashboard / country-detail)
+                                                       ↓
+                                  Header + Chart + Spinner (affichage / états)
+                                                       ↓
+                                  Not-found (URL ou pays introuvable)
 ```
 
 En résumé : **données** (service + models) séparées de **présentation** (pages + shared), avec une gestion d’erreurs et d’états UI explicite, ce qui clarifie les responsabilités et facilite l’évolution vers une API réelle.
