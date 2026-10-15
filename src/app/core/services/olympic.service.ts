@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
-import { catchError, delay, map, Observable, of, shareReplay, throwError } from 'rxjs';
-import { olympicMock } from '../../data/olympic.mock';
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { catchError, map, Observable, shareReplay, throwError } from 'rxjs';
 import { Olympic } from '../../models/olympic.interface';
 import { ERROR_MESSAGES } from '../constants/error-messages';
 
@@ -8,15 +8,17 @@ import { ERROR_MESSAGES } from '../constants/error-messages';
   providedIn: 'root',
 })
 export class OlympicService {
+  private readonly http = inject(HttpClient);
+  private readonly olympicsUrl = 'assets/mock/olympic.json';
+
   /* Source unique + cache : 1 chargement partagé entre toutes les pages. */
   private readonly olympics$: Observable<Olympic[]> = (
     // throwError(() => new Error('error')) as Observable<Olympic[]>
-    of(olympicMock)
+    this.http.get<Olympic[]>(this.olympicsUrl)
   ).pipe(
-    delay(1000),
-    catchError(() => throwError(() => new Error(ERROR_MESSAGES.loadFailed))),
-    shareReplay({ bufferSize: 1, refCount: true })
-  );
+      catchError(() => throwError(() => new Error(ERROR_MESSAGES.loadFailed))),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
 
   /** Liste complète des pays olympiques. */
   getOlympics(): Observable<Olympic[]> {

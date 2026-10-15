@@ -42,21 +42,22 @@ Puis ouvrir [http://localhost:4200/](http://localhost:4200/).
 ## Structure
 
 ```
-src/app/
-├── core/
-│   ├── constants/          # Messages d’erreur
-│   └── services/           # OlympicService
-├── data/
-│   └── olympic.mock.ts     # Données mock
-├── models/                 # Interfaces (Olympic, Participation, Stat)
-├── pages/
-│   ├── dashboard/          # Accueil
-│   ├── country-detail/     # Détail d’un pays
-│   └── not-found/          # Page d’erreur
-└── shared/components/
-    ├── header/             # Titre + stats
-    ├── chart/              # Graphiques Chart.js
-    └── spinner/            # Indicateur de chargement
+src/
+├── app/
+│   ├── core/
+│   │   ├── constants/          # Messages d’erreur
+│   │   └── services/           # OlympicService
+│   ├── models/                 # Interfaces (Olympic, Participation, Stat)
+│   ├── pages/
+│   │   ├── dashboard/          # Accueil
+│   │   ├── country-detail/     # Détail d’un pays
+│   │   └── not-found/          # Page d’erreur
+│   └── shared/components/
+│       ├── header/             # Titre + stats
+│       ├── chart/              # Graphiques Chart.js
+│       └── spinner/            # Indicateur de chargement
+└── assets/mock/
+    └── olympic.json            # Données olympiques
 ```
 
 ### Routes
@@ -75,7 +76,7 @@ src/app/
 | Chart.js 4    | Graphiques pie & line                     |
 | RxJS 7        | Observables (service / chargement)        |
 
-Les données sont aujourd’hui fournies par un mock (`olympic.mock.ts`) via `OlympicService`.
+Les données sont chargées depuis `assets/mock/olympic.json` via `OlympicService` (`HttpClient`).
 
 ## Auteur
 
